@@ -1,5 +1,4 @@
 module Birthdays.Contact(
-  Contact,
   Contact(..),
   nextBirthday,
   hasBirthdayInNDays,
