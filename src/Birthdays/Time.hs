@@ -1,11 +1,25 @@
 module Birthdays.Time(
+  Day,
+  addYear,
+  fromGregorian,
   getZonedDay,
   isInNDays
 ) where
 
 import Control.Monad
-import Data.Time.Calendar
-import Data.Time.LocalTime
+
+import qualified Data.Time.Calendar
+
+import Data.Time.Calendar (addDays, addGregorianYearsClip)
+import Data.Time.LocalTime (localDay, zonedTimeToLocalTime, getZonedTime)
+
+type Day = Data.Time.Calendar.Day
+
+addYear :: Day -> Day
+addYear = addGregorianYearsClip 1
+
+fromGregorian :: Integer -> Int -> Int -> Day
+fromGregorian = Data.Time.Calendar.fromGregorian
 
 getZonedDay :: IO Day
 getZonedDay = fmap (localDay . zonedTimeToLocalTime) getZonedTime 

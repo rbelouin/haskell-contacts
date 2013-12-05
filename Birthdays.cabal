@@ -18,7 +18,7 @@ cabal-version:       >=1.10
 
 executable Birthdays
   main-is:             Main.hs
-  other-modules:       Birthdays.Time
+  other-modules:       Birthdays.Time, Birthdays.Contact, Birthdays.Contact.Static, Birthdays.Contact.PostgreSQL
   -- other-extensions:    
   build-depends:       base >=4.6 && <4.7, time, HDBC, HDBC-postgresql, bytestring
   hs-source-dirs:      src
