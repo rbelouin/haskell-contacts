@@ -1,11 +1,14 @@
 import Network.Wai
 import Network.Wai.Handler.Warp
-import Network.HTTP.Types (Status, status200, status404)
+import Network.HTTP.Types
 
 import Blaze.ByteString.Builder
 import Blaze.ByteString.Builder.Char.Utf8
 
-import Data.ByteString.Char8 (split, unpack)
+import Data.ByteString.Char8 (ByteString, pack, split, unpack)
+
+import Data.List
+import Data.Maybe
 
 import Birthdays.Contact
 import Birthdays.Contact.PostgreSQL (contactsPostgreSQL)
@@ -36,10 +39,33 @@ parsePath :: Request -> [String]
 parsePath req = filter (/= "") $ fmap unpack $ (split '/') . rawPathInfo $ req
 
 
+parseInteger :: String -> Maybe Integer
+parseInteger string = case (reads string) of
+  [(n, "")] -> Just n
+  _         -> Nothing
+
+
+getParameter :: String -> Request -> Maybe String
+getParameter name req = fmap unpack $ queryItem >>= snd
+  where
+    itemHasGivenName (key, value) = key == (pack name)
+    queryItem                     = find itemHasGivenName $ queryString req
+
+getParameterOrElse :: String -> String -> Request -> String
+getParameterOrElse defaultValue name req = fromMaybe defaultValue $ getParameter name req
+
+
+getContacts :: Application
+getContacts req = fmap (sendOK . show) fContacts
+  where
+    fContacts                 = maybe contacts (thatHaveBD contacts) days
+    thatHaveBD contacts days  = contacts >>= (contactsThatHaveBirthdayInNDays days)
+    days                      = (getParameter "days" req) >>= parseInteger
+
 -- ROUTING
 router :: Request -> IO Response
 router req = case parsePath req of
-  ["contacts"]  -> fmap (sendOK . show) contacts
+  ["contacts"]  -> getContacts req
   _             -> return $ sendNotFound "Not found."
 
 
