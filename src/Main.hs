@@ -10,7 +10,11 @@ import Data.ByteString.Char8 (ByteString, pack, split, unpack)
 import Data.List
 import Data.Maybe
 
+import Birthdays.JSON
+
 import Birthdays.Contact
+import Birthdays.Contact.JSON
+
 import Birthdays.Contact.PostgreSQL (contactsPostgreSQL)
 import Birthdays.Contact.Static     (contactsStatic)
 
@@ -56,7 +60,7 @@ getParameterOrElse defaultValue name req = fromMaybe defaultValue $ getParameter
 
 
 getContacts :: Application
-getContacts req = fmap (sendOK . show) fContacts
+getContacts req = fmap (sendOK . encode) fContacts
   where
     fContacts                 = maybe contacts (thatHaveBD contacts) days
     thatHaveBD contacts days  = contacts >>= (contactsThatHaveBirthdayInNDays days)

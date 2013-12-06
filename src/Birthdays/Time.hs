@@ -2,6 +2,7 @@ module Birthdays.Time(
   Day,
   addYear,
   fromGregorian,
+  showGregorian,
   getZonedDay,
   isInNDays
 ) where
@@ -20,6 +21,9 @@ addYear = addGregorianYearsClip 1
 
 fromGregorian :: Integer -> Int -> Int -> Day
 fromGregorian = Data.Time.Calendar.fromGregorian
+
+showGregorian :: Day -> String
+showGregorian = Data.Time.Calendar.showGregorian
 
 getZonedDay :: IO Day
 getZonedDay = fmap (localDay . zonedTimeToLocalTime) getZonedTime 
