@@ -38,6 +38,9 @@ sendOK = send status200
 sendNotFound :: String -> Response
 sendNotFound = send status404
 
+sendNotAllowed :: String -> Response
+sendNotAllowed = send status405
+
 
 parsePath :: Request -> [String]
 parsePath req = filter (/= "") $ fmap unpack $ (split '/') . rawPathInfo $ req
@@ -69,9 +72,12 @@ getContacts req = fmap (sendOK . encode) fContacts
 -- ROUTING
 router :: Request -> IO Response
 router req = case parsePath req of
-  ["contacts"]  -> getContacts req
+  ["contacts"]  -> contactsRouter req
   _             -> return $ sendNotFound "Not found."
-
+  where
+    contactsRouter req = case (unpack $ requestMethod req) of
+      "GET" -> getContacts req
+      _     -> return $ sendNotAllowed "Not Allowed."
 
 main :: IO ()
 main = do
